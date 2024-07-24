@@ -4,25 +4,33 @@ from st_aggrid import AgGrid
 import os
 from streamlit_option_menu import option_menu
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain_core.messages import HumanMessage,AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
-import os
-
 from functions import check
-# from functions import interactive_data_cleaning
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
-st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis ",page_icon=":books:",layout = "wide")
+st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_icon=":books:", layout="wide")
 tab1, tab2 = st.tabs(["Home", "ChatBot"])
+
+def get_llm_response(llm, prompt_template, data):
+    system_message_prompt = SystemMessagePromptTemplate.from_template(
+        "You are StatBot, an expert statistical analyst. "
+        "Explain the output in simple English. Straight away start with your explainations. ")
+    human_message_prompt = HumanMessagePromptTemplate.from_template(prompt_template)
+    
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+    formatted_chat_prompt = chat_prompt.format_messages(**data)
+    response = llm.invoke(formatted_chat_prompt)
+    return response.content
 
 with st.sidebar:
     with st.sidebar.expander(":Red[Get Your Api Key Here]"):
         st.markdown("## How to use\n"
-            "1. Enter your [Groq API key](https://console.groq.com/keys) below🔑\n" 
+            "1. Get your [Groq API key](https://console.groq.com/keys).🔑\n" 
             "2. Upload a CSV file📄\n"
             "3. Let LISA do it's work!!!💬\n"
                 )
@@ -31,11 +39,10 @@ with st.sidebar:
             placeholder="Paste your Groq API key here (gsk_...)",
             help="You can get your API key from https://console.groq.com/keys")
     
-    st.text("The below parameters like temperature and top-p play a crucial role in controlling the randomness and creativity of the generated text. Adjust these parameters according to your requirements.")    
     with st.sidebar.expander("Model Parameters"):
         model_name = st.selectbox("Select Model:", ["llama3-8b-8192","llama3-70b-8192","mixtral-8x7b-32768","gemma-7b-it","gemma2-9b-it"])
-        temperature = st.slider("Temperature:", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
-        top_p = st.slider("Top-p:", min_value=0.0, max_value=1.0, value=1.0, step=0.25)
+        temperature = st.slider("Temperature: It determines whether the output is more random, creative or more predictable.", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
+        top_p = st.slider("Top-p: It determines the cumulative probability distribution used for sampling the next  in the generated response.", min_value=0.0, max_value=1.0, value=1.0, step=0.25)
 
     st.divider()
 
@@ -62,97 +69,45 @@ with tab1:
     
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
-        AgGrid(df,theme="balham")
+        st.dataframe(df)
         st.divider()
 
-        option = st.selectbox("Select an option:", ["Show dataset dimensions","Display data description","Verify data integrity", "Summarize numerical data statistics", "Summarize categorical data"])
+        option = st.selectbox("Select an option:", ["Show dataset dimensions", "Display data description", "Verify data integrity", "Summarize numerical data statistics", "Summarize categorical data"])
         
         if not groq_api_key:
             st.warning("Please enter your Groq API key in the sidebar to use the analysis features.")
         elif llm is None:
             st.error("Failed to initialize the model. Please check your API key.")
         else:
-            
             if option == "Show dataset dimensions":
                 shape_of_the_data = df.shape
-                systemmessageprompt = SystemMessagePromptTemplate.from_template( 
-                "You are StatBot, an expert statistical analyst. "
-                "Explain the output in simple English.")
-                humanmessageprompt = HumanMessagePromptTemplate.from_template(
-                'The columns in the dataset are: {columns}')
-                
-                chatprompt = ChatPromptTemplate.from_messages([systemmessageprompt, humanmessageprompt])
-                formattedchatprompt = chatprompt.format_messages(columns=shape_of_the_data)
-                response = llm.invoke(formattedchatprompt)
-                response = response.content
-                st.write(response)
+                response = get_llm_response(llm, 'The shape of the dataset is: {shape}', {'shape': shape_of_the_data})
                 
             elif option == "Display data description":
                 column_description = df.columns
-                
-                systemmessageprompt = SystemMessagePromptTemplate.from_template( 
-                "You are StatBot, an expert statistical analyst. "
-                "Explain the output in simple English.")
-                humanmessageprompt = HumanMessagePromptTemplate.from_template(
-                'The columns in the dataset are: {columns}')
-                
-                chatprompt = ChatPromptTemplate.from_messages([systemmessageprompt, humanmessageprompt])
-                formattedchatprompt = chatprompt.format_messages(columns=column_description)
-                response = llm.invoke(formattedchatprompt)
-                response = response.content
-                st.write(response)
+                response = get_llm_response(llm, 'The columns in the dataset are: {columns}', {'columns': column_description})
                 
             elif option == "Verify data integrity":
                 df_check = check(df)
                 st.dataframe(df_check)
-
-                systemmessageprompt = SystemMessagePromptTemplate.from_template( 
-                "You are StatBot, an expert statistical analyst. "
-                "Explain the output in simple English.")
-                humanmessageprompt = HumanMessagePromptTemplate.from_template(
-                'The columns in the dataset are: {df_check}')
-                
-                chatprompt = ChatPromptTemplate.from_messages([systemmessageprompt, humanmessageprompt])
-                formattedchatprompt = chatprompt.format_messages(df_check=df_check)
-                response = llm.invoke(formattedchatprompt)
-                response = response.content
-                st.write(response)
+                response = get_llm_response(llm, 'The data integrity check results are: {df_check}', {'df_check': df_check})
                 
             elif option == "Summarize numerical data statistics":
                 describe_numerical = df.describe().T
                 st.dataframe(describe_numerical)
-            
-                systemmessageprompt = SystemMessagePromptTemplate.from_template( 
-                "You are StatBot, an expert statistical analyst. "
-                "Explain the output in simple English.")
-                humanmessageprompt = HumanMessagePromptTemplate.from_template(
-                'The columns in the dataset are: {columns}')
-                
-                chatprompt = ChatPromptTemplate.from_messages([systemmessageprompt, humanmessageprompt])
-                formattedchatprompt = chatprompt.format_messages(columns=describe_numerical)
-                response = llm.invoke(formattedchatprompt)
-                response = response.content
-                st.write(response)
+                response = get_llm_response(llm, 'The numerical data statistics are: {stats}', {'stats': describe_numerical})
                 
             elif option == "Summarize categorical data":
                 categorical_df = df.select_dtypes(include=['object'])
                 if categorical_df.empty:
                     st.write("No categorical columns found.")
+                    response = get_llm_response(llm, 'There are no categorical columns in this dataset.', {})
                 else:
                     describe_categorical = categorical_df.describe()
                     st.dataframe(describe_categorical)
-                    
-                systemmessageprompt = SystemMessagePromptTemplate.from_template( 
-                "You are StatBot, an expert statistical analyst. "
-                "Explain the output in simple English.")
-                humanmessageprompt = HumanMessagePromptTemplate.from_template(
-                'The columns in the dataset are: {columns}')
-                
-                chatprompt = ChatPromptTemplate.from_messages([systemmessageprompt, humanmessageprompt])
-                formattedchatprompt = chatprompt.format_messages(columns=describe_categorical)
-                response = llm.invoke(formattedchatprompt)
-                response = response.content
-                st.write(response)
+                    response = get_llm_response(llm, 'The categorical data summary is: {summary}', {'summary': describe_categorical})
+            
+            st.write(response)
 
 with tab2:
     st.markdown("""Our integrated chatbot is available to assist you, providing real-time answers to your data-related queries and enhancing your overall experience with personalized support.""")

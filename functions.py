@@ -6,17 +6,17 @@ import plotly.express as px
 # from streamlit_pandas_profiling import st_profile_report
 
 def check(df):
-    l = []
-    columns = df.columns
+    l=[]
+    columns=df.columns
     for col in columns:
-        dtypes = df[col].dtypes
-        nunique = df[col].nunique()
-        duplicated = df.duplicated().sum()
-        sum_null = df[col].isnull().sum()
+        dtypes=df[col].dtypes
+        nunique=df[col].nunique()
+        duplicated=df.duplicated().sum()
+        sum_null=df[col].isnull().sum()
         l.append([col,dtypes,nunique,duplicated,sum_null])
-        df_check = pd.DataFrame(l)
-        df_check.columns = ['columns','Data Types','No of Unique Values','No of Duplicated Rows','No of Null Values']
-        return df_check 
+    df_check=pd.DataFrame(l)
+    df_check.columns=['columns','Data Types','No of Unique Values','No of Duplicated Rows','No of Null Values']
+    return df_check 
 
 # def interactive_data_cleaning():
 #     st.header("Interactive Data Cleaning")
