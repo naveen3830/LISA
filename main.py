@@ -36,7 +36,7 @@ def groq_infer(llm, prompt):
     return response.content
 
 with st.sidebar:
-    with st.sidebar.expander(":red[Get Your API Key Here]"):
+    with st.sidebar.expander("Get Your API Key Here"):
         st.markdown("## How to use\n"
             "1. Enter your [Groq API key](https://console.groq.com/keys) below🔑\n" 
             "2. Upload a CSV file📄\n"
@@ -137,6 +137,7 @@ with tab1:
                     response = get_llm_response(llm, 'The categorical data summary is: {summary}', {'summary': describe_categorical})
                 st.write(response)
             
+
             elif option == "Ask a question about the data":
                 question = st.text_input("Write a question about the data", key="question")
                 if question:
@@ -158,8 +159,18 @@ with tab1:
                             result = sqldf(final, {'df': st.session_state.df})
                             st.write("Answer:")
                             st.dataframe(result)
-                            response = get_llm_response(llm, 'The data integrity check results are: {result}', {'result': result})
-                            st.write(response)
+                            
+                            # Pass the output dataframe and question to the LLM for explanation
+                            explanation_prompt = f"""
+                            You are given a question and an answer related to the dataset. Explain the answer in simple English, considering the dataset's context.
+                            
+                            Dataset Context: {context}
+                            Question: {question}
+                            Answer: {result.to_string()}
+                            """
+                            explanation_response = groq_infer(llm, explanation_prompt)
+                            st.write("Explanation:")
+                            st.write(explanation_response)
                             break
                         except Exception as e:
                             attempt += 1
@@ -169,3 +180,4 @@ with tab1:
                             continue
                 else:
                     st.warning("Please enter a question before clicking 'Get Answer'.")
+

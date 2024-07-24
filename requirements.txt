@@ -11,3 +11,4 @@ python-dotenv
 streamlit-aggrid
 pandas_profiling
 streamlit_pandas_profiling 
+pandasql
