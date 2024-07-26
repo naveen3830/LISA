@@ -181,7 +181,6 @@ with tab1:
                     st.warning("Please enter a question before clicking 'Get Answer'.")
 
 
-
 with tab2:
     st.markdown("""Our integrated chatbot is available to assist you, providing real-time answers to your data-related queries and enhancing your overall experience with personalized support.""")
     st.markdown("""---""")
@@ -225,7 +224,7 @@ with tab2:
             with st.chat_message("AI"):
                 ai_response = st.write_stream(get_response(user_query, st.session_state.chat_history))
                 
-            st.session_state.chat_history.append(AIMessage(ai_response))
+            st.session_state.chat_history.append(ai_response)
 
 # with tab3:
 #     interactive_data_cleaning()

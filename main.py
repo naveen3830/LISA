@@ -46,7 +46,6 @@ with st.sidebar:
             placeholder="Paste your Groq API key here (gsk_...)",
             help="You can get your API key from https://console.groq.com/keys")
     
-    st.text("The below parameters like temperature and top-p play a crucial role in controlling the randomness and creativity of the generated text. Adjust these parameters according to your requirements.")    
     with st.sidebar.expander("Model Parameters"):
         model_name = st.selectbox("Select Model:", ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"])
         temperature = st.slider("Temperature: It determines whether the output is more random, creative or more predictable.", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
@@ -94,7 +93,7 @@ with tab1:
     if uploaded_file is not None:
         st.session_state.df = pd.read_csv(uploaded_file, encoding="latin1")
         st.session_state.df.columns = st.session_state.df.columns.str.replace(r"[^a-zA-Z0-9_]", "", regex=True)
-        AgGrid(st.session_state.df, theme="balham")
+        st.dataframe(st.session_state.df)
         st.divider()
 
         option = st.selectbox("Select an option:", ["Show dataset dimensions", "Display data description", "Verify data integrity", "Summarize numerical data statistics", "Summarize categorical data", "Ask a question about the data"])
@@ -137,7 +136,6 @@ with tab1:
                     response = get_llm_response(llm, 'The categorical data summary is: {summary}', {'summary': describe_categorical})
                 st.write(response)
             
-
             elif option == "Ask a question about the data":
                 question = st.text_input("Write a question about the data", key="question")
                 if question:
@@ -164,7 +162,7 @@ with tab1:
                             explanation_prompt = f"""
                             You are given a question and an answer related to the dataset. Explain the answer in simple English, considering the dataset's context.
                             
-                            Dataset Context: {context}
+                            Dataset Context: {uploaded_file}
                             Question: {question}
                             Answer: {result.to_string()}
                             """
