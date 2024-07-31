@@ -151,8 +151,8 @@ with tab1:
                             response = groq_infer(llm, formatted_prompt)
                             final = response.replace("`", "").replace("sql", "").strip()
                             
-                            st.write("Generated SQL Query:")
-                            st.code(final)
+                            # st.write("Generated SQL Query:")
+                            # st.code(final)
                             
                             # Execute the SQL query on the DataFrame
                             result = sqldf(final, {'df': st.session_state.df})
