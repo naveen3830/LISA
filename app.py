@@ -5,6 +5,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.messages import HumanMessage
+from langchain.schema import AIMessage
 from langchain_core.output_parsers import StrOutputParser
 from pandasql import sqldf
 from functions import check
@@ -177,8 +178,9 @@ with tab1:
                             continue
                 else:
                     st.warning("Please enter a question before clicking 'Get Answer'.")
-
-
+                    
+                    
+# Assuming you've already set up your tabs and this is inside the tab2 section
 with tab2:
     st.markdown("""Our integrated chatbot is available to assist you, providing real-time answers to your data-related queries and enhancing your overall experience with personalized support.""")
     st.markdown("""---""")
@@ -186,17 +188,25 @@ with tab2:
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    def get_response(query, chat_history):
+    def get_response(query, chat_history, df):
         template = """
-        You are a helpful assistant. Answer the following the user asks:
-        
-        Chat history:{chat_history}
-        user question:{user_question}
+        You are a helpful assistant. Answer the following question based on the provided dataset:
+
+        Dataset information:
+        {df}
+
+        Chat history:
+        {chat_history}
+
+        User question: {user_question}
         """
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | llm | StrOutputParser()
         return chain.stream({
-            "chat_history": chat_history,"user_question": query})
+            "chat_history": chat_history,
+            "user_question": query,
+            "df": df.head().to_string()  # Using head() to limit the data shown. Adjust as needed.
+        })
 
     for message in st.session_state.chat_history:
         if isinstance(message, HumanMessage):
@@ -214,14 +224,17 @@ with tab2:
         user_query = st.chat_input("Type your message here")
         
         if user_query is not None and user_query != "":
-            st.session_state.chat_history.append(HumanMessage(user_query))
+            st.session_state.chat_history.append(HumanMessage(content=user_query))
             
             with st.chat_message("Human"):
                 st.markdown(user_query)
                 
             with st.chat_message("AI"):
-                ai_response = st.write_stream(get_response(user_query, st.session_state.chat_history))
-                
-            st.session_state.chat_history.append(ai_response)
-
-        
+                full_response = ""
+                message_placeholder = st.empty()
+                for chunk in get_response(user_query, st.session_state.chat_history, st.session_state.df):
+                    full_response += chunk
+                    message_placeholder.markdown(full_response + "▌")
+                message_placeholder.markdown(full_response)
+            
+            st.session_state.chat_history.append(AIMessage(content=full_response))
