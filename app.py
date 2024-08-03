@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 
 st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_icon=":books:", layout="wide")
 
-# Initialize session state to store the dataframe
 if 'df' not in st.session_state:
     st.session_state.df = None
 
@@ -55,7 +54,6 @@ with st.sidebar:
 
     st.divider()
 
-    # Initialize LLM only if API key is provided
     llm = None
     if groq_api_key:
         try:
@@ -68,7 +66,6 @@ with st.sidebar:
         except Exception as e:
             st.sidebar.error(f"Error initializing model: {str(e)}")
 
-# Define the prompt template
 template = """You are a powerful text-to-SQL model. Your job is to answer questions about a database. You are given a question and context regarding one or more tables. Don't add \n characters.
 
 You must output the SQL query that answers the question in a single line.
@@ -155,12 +152,10 @@ with tab1:
                             # st.write("Generated SQL Query:")
                             # st.code(final)
                             
-                            # Execute the SQL query on the DataFrame
                             result = sqldf(final, {'df': st.session_state.df})
                             st.write("Answer:")
                             st.dataframe(result)
                             
-                            # Pass the output dataframe and question to the LLM for explanation
                             explanation_prompt = f"""
                             Given the context of the dataset from {uploaded_file}, explain the following answer in simple English: Also do not explain the sql query.
 
@@ -246,8 +241,8 @@ with tab3:
     
     st.markdown("The table below provides comparision of the performance of different LLM models across various NLP (Natural Language Processing) benchmarks")
     
-    model_card=pd.read_csv(r"D:\Modular Coding\modular_coding\modelcard.csv")
-    st.dataframe(model_card)
+    model_card=pd.read_csv(r"modular_coding\modelcard.csv")
+    st.dataframe(model_card,hide_index=True)
     st.markdown("""
 <style>
 ul {
@@ -264,3 +259,5 @@ ul {
     <li><b>MATH:</b> Tests the model’s ability to solve middle school and high school math problems.</li>
 </ul>
 """, unsafe_allow_html=True)
+    
+    st.info("We've observed that the Gemma2-9B-IT model excels in querying data, while the Llama variants are particularly effective for inferring results.", icon="ℹ️")
