@@ -18,7 +18,7 @@ st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_i
 if 'df' not in st.session_state:
     st.session_state.df = None
 
-tab1, tab2, tab3 = st.tabs(["Home", "ChatBot","Data Preparation"])
+tab1, tab2, tab3= st.tabs(["Home", "ChatBot","LLM Model Card"])
 
 def get_llm_response(llm, prompt_template, data):
     system_message_prompt = SystemMessagePromptTemplate.from_template(
@@ -49,7 +49,7 @@ with st.sidebar:
             help="You can get your API key from https://console.groq.com/keys")
     
     with st.sidebar.expander("Model Parameters"):
-        model_name = st.selectbox("Select Model:", ["llama-3.1-70b-versatile","llama-3.1-8b-instant","llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"])
+        model_name = st.selectbox("Select Model:",["llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"])
         temperature = st.slider("Temperature: It determines whether the output is more random, creative or more predictable.", min_value=0.0, max_value=1.0, value=0.5, step=0.1)
         top_p = st.slider("Top-p: It determines the cumulative probability distribution used for sampling the next token in the generated response", min_value=0.0, max_value=1.0, value=1.0, step=0.25)
 
@@ -179,8 +179,6 @@ with tab1:
                 else:
                     st.warning("Please enter a question before clicking 'Get Answer'.")
                     
-                    
-# Assuming you've already set up your tabs and this is inside the tab2 section
 with tab2:
     st.markdown("""Our integrated chatbot is available to assist you, providing real-time answers to your data-related queries and enhancing your overall experience with personalized support.""")
     st.markdown("""---""")
@@ -205,7 +203,7 @@ with tab2:
         return chain.stream({
             "chat_history": chat_history,
             "user_question": query,
-            "df": df.head().to_string()  # Using head() to limit the data shown. Adjust as needed.
+            "df": df.head(50).to_string()  
         })
 
     for message in st.session_state.chat_history:
@@ -234,7 +232,35 @@ with tab2:
                 message_placeholder = st.empty()
                 for chunk in get_response(user_query, st.session_state.chat_history, st.session_state.df):
                     full_response += chunk
-                    message_placeholder.markdown(full_response + "▌")
+                    message_placeholder.markdown(full_response + "")
                 message_placeholder.markdown(full_response)
             
             st.session_state.chat_history.append(AIMessage(content=full_response))
+            
+with tab3:
+    st.header("LLM Model Card",divider="rainbow")
+    
+    st.markdown("In our innovative project LISA (LLM Informed Statistical Analysis), we are harnessing the power of Groq-hosted large language models (LLMs) to revolutionize the way statistical analysis is performed and interpreted. Groq’s platform plays a pivotal role in enabling LISA to deliver accurate, fast, and insightful data analysis by providing access to highly optimized, open-source LLMs that are tailored for complex data processing tasks.")
+    
+    st.markdown("Groq is the AI infrastructure company that delivers fast AI inference.The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.")
+    
+    st.markdown("The table below provides comparision of the performance of different LLM models across various NLP (Natural Language Processing) benchmarks")
+    
+    model_card=pd.read_csv(r"D:\Modular Coding\modular_coding\modelcard.csv")
+    st.dataframe(model_card)
+    st.markdown("""
+<style>
+ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+</style>
+<ul>
+    Here’s what these benchmarks mean:
+    <li><b>MMLU (Massive Multitask Language Understanding):</b> A benchmark designed to understand how well a language model can multitask. The model’s performance is assessed across a range of subjects, such as math, computer science, and law.</li>
+    <li><b>GPQA (Graduate-Level Google-Proof Q&A):</b> Assesses a model’s ability to answer questions that are challenging for search engines to solve directly. This benchmark evaluates whether the AI can handle questions that usually require human-level research skills.</li>
+    <li><b>HumanEval:</b> Assesses how well the model can write code by asking it to perform programming tasks.</li>
+    <li><b>GSM-8K:</b> Evaluates the model’s ability to solve math word problems.</li>
+    <li><b>MATH:</b> Tests the model’s ability to solve middle school and high school math problems.</li>
+</ul>
+""", unsafe_allow_html=True)
