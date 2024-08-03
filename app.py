@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-
 st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_icon=":books:", layout="wide")
 
 if 'df' not in st.session_state:
@@ -117,12 +116,14 @@ with tab1:
             elif option == "Verify data integrity":
                 df_check = check(st.session_state.df)
                 st.dataframe(df_check)
+                st.divider()
                 response = get_llm_response(llm, 'The data integrity check results are: {df_check}', {'df_check': df_check})
                 st.write(response)
                 
             elif option == "Summarize numerical data statistics":
                 describe_numerical = st.session_state.df.describe().T
                 st.dataframe(describe_numerical)
+                st.divider()    
                 response = get_llm_response(llm, 'The numerical data statistics are: {stats}', {'stats': describe_numerical})
                 st.write(response)
                 
@@ -134,6 +135,7 @@ with tab1:
                 else:
                     describe_categorical = categorical_df.describe()
                     st.dataframe(describe_categorical)
+                    st.divider()
                     response = get_llm_response(llm, 'The categorical data summary is: {summary}', {'summary': describe_categorical})
                 st.write(response)
             
@@ -176,6 +178,8 @@ with tab1:
                 else:
                     st.warning("Please enter a question before clicking 'Get Answer'.")
                     
+
+
 with tab2:
     st.markdown("""Our integrated chatbot is available to assist you, providing real-time answers to your data-related queries and enhancing your overall experience with personalized support.""")
     st.markdown("""---""")
@@ -185,15 +189,17 @@ with tab2:
 
     def get_response(query, chat_history, df):
         template = """
-        You are a helpful assistant. Answer the following question based on the provided dataset:
+        You are a knowledgeable data assistant. Answer the user's question based on the provided dataset and the conversation history. If the data isn't directly related to the question, guide the user on how they might extract relevant insights also do not directly provide the code for every question provide code only when user asks for.
 
-        Dataset information:
+        Dataset information (limit to first 50 rows):
         {df}
 
         Chat history:
         {chat_history}
 
         User question: {user_question}
+
+        If the question is not clear, ask for clarification. Provide SQL queries or Python code snippets where appropriate to help the user interact with their data.
         """
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | llm | StrOutputParser()
@@ -203,6 +209,7 @@ with tab2:
             "df": df.head(50).to_string()  
         })
 
+    # Display chat history
     for message in st.session_state.chat_history:
         if isinstance(message, HumanMessage):
             with st.chat_message("Human"):
@@ -216,6 +223,8 @@ with tab2:
     elif llm is None:
         st.error("Failed to initialize the model. Please check your API key.")
     else:
+        # Move the chat input to the bottom
+        st.write("")  # Add some space
         user_query = st.chat_input("Type your message here")
         
         if user_query is not None and user_query != "":
