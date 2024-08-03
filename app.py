@@ -10,6 +10,8 @@ from langchain_core.output_parsers import StrOutputParser
 from pandasql import sqldf
 from functions import check
 from dotenv import load_dotenv
+from pathlib import Path
+import os
 
 
 st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_icon=":books:", layout="wide")
@@ -241,8 +243,16 @@ with tab3:
     
     st.markdown("The table below provides comparision of the performance of different LLM models across various NLP (Natural Language Processing) benchmarks")
     
-    model_card=pd.read_csv(r"modular_coding\modelcard.csv")
+    
+    data_folder_path = "Data"
+    for file_name in os.listdir(data_folder_path):
+        if file_name.endswith(".csv"):
+            data_file_path = os.path.join(data_folder_path, file_name)
+            model_card= pd.read_csv(data_file_path)
+            break
+
     st.dataframe(model_card,hide_index=True)
+    
     st.markdown("""
 <style>
 ul {
