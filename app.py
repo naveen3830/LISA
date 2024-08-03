@@ -206,7 +206,7 @@ with tab2:
         return chain.stream({
             "chat_history": chat_history,
             "user_question": query,
-            "df": df.head(50).to_string()  
+            "df": df.head(50).to_string() if df is not None else "No data uploaded yet."
         })
 
     # Display chat history
@@ -223,8 +223,7 @@ with tab2:
     elif llm is None:
         st.error("Failed to initialize the model. Please check your API key.")
     else:
-        # Move the chat input to the bottom
-        st.write("")  # Add some space
+        st.write("") 
         user_query = st.chat_input("Type your message here")
         
         if user_query is not None and user_query != "":
@@ -236,10 +235,15 @@ with tab2:
             with st.chat_message("AI"):
                 full_response = ""
                 message_placeholder = st.empty()
-                for chunk in get_response(user_query, st.session_state.chat_history, st.session_state.df):
-                    full_response += chunk
-                    message_placeholder.markdown(full_response + "")
-                message_placeholder.markdown(full_response)
+                try:
+                    for chunk in get_response(user_query, st.session_state.chat_history, st.session_state.get('df')):
+                        full_response += chunk
+                        message_placeholder.markdown(full_response + "")
+                    message_placeholder.markdown(full_response)
+                except Exception as e:
+                    error_message = f"An error occurred: {str(e)}. Please make sure you've uploaded a dataset."
+                    message_placeholder.error(error_message)
+                    full_response = error_message
             
             st.session_state.chat_history.append(AIMessage(content=full_response))
             
