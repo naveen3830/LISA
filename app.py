@@ -109,7 +109,7 @@ with tab1:
                 st.write(response)
                 
             elif option == "Display data description":
-                column_description = st.session_state.df.columns.tolist()
+                column_description = st.session_state.df.columns
                 response = get_llm_response(llm, 'The columns in the dataset are: {columns}', {'columns': column_description})
                 st.write(response)
                 
