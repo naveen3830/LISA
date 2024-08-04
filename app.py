@@ -256,16 +256,20 @@ with tab3:
     
     st.markdown("The table below provides comparision of the performance of different LLM models across various NLP (Natural Language Processing) benchmarks")
     
-    
     data_folder_path = "Data"
+    dataframes = {}
     for file_name in os.listdir(data_folder_path):
         if file_name.endswith(".csv"):
             data_file_path = os.path.join(data_folder_path, file_name)
-            model_card= pd.read_csv(data_file_path)
-            break
+            df = pd.read_csv(data_file_path)
+            dataframes[file_name] = df
 
-    st.dataframe(model_card,hide_index=True)
-    
+    model_card = dataframes.get('modelcard.csv')
+    if model_card is not None:
+        st.dataframe(model_card, hide_index=True)
+    else:
+        st.error("Model card CSV not found.")
+        
     st.markdown("""
 <style>
 ul {
