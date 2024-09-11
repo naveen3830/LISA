@@ -245,7 +245,7 @@ def classify():
             
             if llm:
                 response_accuracy = get_llm_response(llm, accuracy=accuracy, confusion_matrix=None, classification_report=None)
-                st.markdown("**Explanation from LLM for Accuracy:**")
+                st.markdown("## Explanation from LLM for Accuracy:")
                 st.markdown(response_accuracy)
 
             # # Cross-Validation
@@ -285,7 +285,8 @@ def classify():
 
             if llm:
                 response_cm = get_llm_response(llm, confusion_matrix=conf_matrix, classification_report=None)
-                st.markdown("**Explanation from LLM for Confusion Matrix:**")
+                st.divider()
+                st.markdown("## Explanation from LLM for Confusion Matrix:")
                 st.markdown(response_cm)
             
             def display_classification_report_as_df(y_true, y_pred):
@@ -302,6 +303,8 @@ def classify():
 
             if llm:
                 response_cr = get_llm_response(llm, classification_report=df_report)
-                st.markdown("**Explanation from LLM for Classification Report:**")
+                st.divider()
+                st.markdown("## Explanation from LLM for Classification Report:")
                 st.markdown(response_cr)
+                st.divider()
     

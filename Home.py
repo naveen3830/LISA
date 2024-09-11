@@ -47,6 +47,7 @@ prompt = PromptTemplate.from_template(template=template)
 def load_sidebar():
     # Load sidebar elements for API key and model parameters
     with st.sidebar:
+        st.divider()
         with st.sidebar.expander("Get Your API Key Here"):
             st.markdown("## How to use\n"
             "1. Enter your [Groq API key](https://console.groq.com/keys) below🔑\n" 
@@ -54,17 +55,15 @@ def load_sidebar():
             "3. Let LISA do its work!!!💬\n")
         
         st.session_state['groq_api_key'] = st.text_input("Enter your Groq API key:", type="password",
-                                                         placeholder="Paste your Groq API key here (gsk_...)",
-                                                         value=st.session_state.get('groq_api_key', ''))
+                                                        placeholder="Paste your Groq API key here (gsk_...)",
+                                                        value=st.session_state.get('groq_api_key', ''))
         
         st.session_state['model_name'] = st.selectbox("Select Model:", 
-                                                      ["llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"], 
-                                                      index=st.session_state.get('model_name_index', 0))
+                                                    ["llama-3.1-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"], 
+                                                    index=st.session_state.get('model_name_index', 0))
         
         st.session_state['temperature'] = st.slider("Temperature:", min_value=0.0, max_value=1.0, value=st.session_state.get('temperature', 0.5), step=0.1)
         st.session_state['top_p'] = st.slider("Top-p:", min_value=0.0, max_value=1.0, value=st.session_state.get('top_p', 1.0), step=0.25)
-
-
 
 def Home():
     load_sidebar()

@@ -25,8 +25,12 @@ if 'df' not in st.session_state:
 
 # Sidebar menu
 with st.sidebar:
-    st.title("LISA Menu")
-    st.markdown("### Navigate through the sections:")
+    # Title with centered alignment
+    st.markdown("<h2 style='text-align: center;'>LISA Menu</h2>", unsafe_allow_html=True)
+
+    # Subtitle with centered alignment
+    st.markdown("<h4 style='text-align: center;'>Navigate through the sections:</h4>", unsafe_allow_html=True)
+    
     selected = option_menu(
         'Main Menu',
         ['Home', 'Visualisation', 'Classification', 'Statistical Analysis'],

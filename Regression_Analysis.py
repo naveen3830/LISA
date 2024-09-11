@@ -18,7 +18,28 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
-def get_llm_response(llm, r2_score=None, mae=None, rmse=None, mse=None, summary=None):
+# Initialize session state variables
+if 'llm' not in st.session_state:
+    st.session_state.llm = None
+
+def initialize_llm():
+    if st.session_state.get('groq_api_key') and not st.session_state.llm:
+        try:
+            st.session_state.llm = ChatGroq(
+                groq_api_key=st.session_state['groq_api_key'], 
+                model_name=st.session_state['model_name'],
+                temperature=st.session_state['temperature'],
+                top_p=st.session_state['top_p']
+            )
+        except Exception as e:
+            st.sidebar.error(f"Error initializing model: {str(e)}")
+
+def get_llm_response(r2_score=None, mae=None, rmse=None, mse=None, summary=None):
+    if not st.session_state.llm:
+        initialize_llm()
+    
+    if not st.session_state.llm:
+        return "LLM not initialized. Please check your API key and settings."
     
     system_message_prompt = SystemMessagePromptTemplate.from_template(
         "You are StatBot, an expert statistical analyst. "
@@ -52,20 +73,8 @@ def get_llm_response(llm, r2_score=None, mae=None, rmse=None, mse=None, summary=
         summary_section=summary_section
     )
 
-    response = llm.invoke(formatted_chat_prompt)
+    response = st.session_state.llm.invoke(formatted_chat_prompt)
     return response.content
-
-llm = None
-if st.session_state.get('groq_api_key'):
-    try:
-        llm = ChatGroq(
-            groq_api_key=st.session_state['groq_api_key'], 
-            model_name=st.session_state['model_name'],
-            temperature=st.session_state['temperature'],
-            top_p=st.session_state['top_p']
-        )
-    except Exception as e:
-        st.sidebar.error(f"Error initializing model: {str(e)}")
 
 def regression_analysis():
     if 'df' in st.session_state and st.session_state.df is not None:
@@ -90,7 +99,7 @@ def preprocess_data(data, independent_vars):
     return data_encoded, categorical_vars, new_independent_vars
 
 def analysis():
-    # st.header('🔍 Regression Model Builder', divider='rainbow')
+    initialize_llm()  # Initialize LLM at the start of analysis
     st.write("""
     Welcome to the Regression Model Builder! This app allows you to build and evaluate various regression models on your dataset.
     You can select the features, choose from a variety of algorithms, handle class imbalances, and evaluate the model's performance.
@@ -157,10 +166,12 @@ def analysis():
                 R^2 Score: {r2_score_value:.3f}
                 """)
                 
-                if llm:
-                    response_metrics = get_llm_response(llm, r2_score=r2_score_value, mae=err, mse=err3)
+                if st.session_state.llm:
+                    response_metrics = get_llm_response(r2_score=r2_score_value, mae=err, mse=err3)
                     st.write("## Explanation from LLM for Metrics:")
                     st.markdown(response_metrics)
+                else:
+                    st.warning("LLM not initialized. Explanations will not be provided.")
                 
                 if r2_score_value > 0.2:
                     residuals = ytest - test_prediction
@@ -182,10 +193,8 @@ def analysis():
 
                 if abs(residuals_mean) < 10:
                     st.subheader("🔄 Alternative Models", divider='gray')
-                    # st.write("RIDGE REGRESSION RESULT:")
-                    mse_r, mae_r, model_r = ridge_regression(xtrain, xtest, ytrain, ytest, 10, llm)
-                    # st.write("LASSO REGRESSION RESULT:")
-                    mse_l, mae_l, model_l = lasso_regression(xtrain, xtest, ytrain, ytest, 10, llm)
+                    mse_r, mae_r, model_r = ridge_regression(xtrain, xtest, ytrain, ytest, 10, st.session_state.llm)
+                    mse_l, mae_l, model_l = lasso_regression(xtrain, xtest, ytrain, ytest, 10, st.session_state.llm)
                     if mae_r < mae_l:
                         st.session_state.model = model_r
                     else:
@@ -203,7 +212,6 @@ def analysis():
             st.error("Please select both dependent and independent features before training the model.")
 
 def ridge_regression(X_train, X_test, y_train, y_test, alpha, llm=None):
-    
     ridge = Ridge(alpha=alpha)
     ridge.fit(X_train, y_train)
     y_pred = ridge.predict(X_test)
@@ -222,7 +230,7 @@ def ridge_regression(X_train, X_test, y_train, y_test, alpha, llm=None):
             """)
 
         if llm:
-            response_metrics = get_llm_response(llm, r2_score=r2_score_value, mae=err, mse=err3)
+            response_metrics = get_llm_response(r2_score=r2_score_value, mae=err, mse=err3)
             st.write("## Explanation from LLM for Ridge Regression Metrics:")
             st.markdown(response_metrics)
 
@@ -237,7 +245,6 @@ def ridge_regression(X_train, X_test, y_train, y_test, alpha, llm=None):
     return err, err2, ridge
 
 def lasso_regression(X_train, X_test, y_train, y_test, alpha, llm=None):
-    
     lasso = Lasso(alpha=alpha)
     lasso.fit(X_train, y_train)
     y_pred = lasso.predict(X_test)
@@ -255,7 +262,7 @@ def lasso_regression(X_train, X_test, y_train, y_test, alpha, llm=None):
             """)
 
     if llm:
-        response_metrics = get_llm_response(llm, r2_score=r2_score_value, mae=err, mse=err3)
+        response_metrics = get_llm_response(r2_score=r2_score_value, mae=err, mse=err3)
         st.markdown("## Explanation from LLM for Lasso Regression Metrics:")
         st.markdown(response_metrics)
 
@@ -272,49 +279,16 @@ def check_linear_reg_validity(X, y):
     f = 0
     stat, p_value = shapiro(y)
 
-    # Output the results
-    print(f'Statistic: {stat}, p-value: {p_value}')
-
-
     xtrain = sm.add_constant(X)
     
-    # Fit the OLS model
     ols_model = sm.OLS(y,xtrain).fit()
     
-    # Perform the Breusch-Pagan test
     lm_stat, lm_pvalue, fvalue, f_pvalue = het_breuschpagan(ols_model.resid, xtrain)
     
-    print('LM_P_VAL',lm_pvalue)
-    # Interpret the result
     alpha = 0.05
     if ((p_value > alpha) and (lm_pvalue>alpha)):
-        print('Sample looks Gaussian (fail to reject H0)')
         f = 1
-    else:
-        print('Sample does not look Gaussian (reject H0)')
     return f
-
-def poisson_regression():
-    dependent_features = st.selectbox("Select a feature for the Dependent variable:", st.session_state.df.columns)
-    df1 = st.session_state.df.drop(dependent_features, axis=1)
-    independent_features = st.multiselect("Select a feature for the Independent variable:", df1.columns)
-    if st.button("Submit"):
-        X = st.session_state.df[independent_features]
-        y = st.session_state.df[dependent_features]
-        st.write(X)
-        st.write(y)
-
-        st.write(np.var(y), np.mean(y))
-        
-        st.write(st.session_state.df)
-        
-        poisson_model = smf.poisson('y ~ X', data=st.session_state.df).fit()
-        # Evaluation metrics
-        
-        st.write(poisson_model.summary())
-        #st.write(evaluation_metrics)
-        st.session_state.model=poisson_model
-        return independent_features
 
 def fit_glm(xtrain, xtest, ytrain, ytest, model_type):
     st.write(f"You selected: {model_type}")
@@ -386,8 +360,8 @@ def fit_glm(xtrain, xtest, ytrain, ytest, model_type):
            **R^2 Score:** {r2:.3f}
     """)
 
-    if llm:
-        response_metrics = get_llm_response(llm, r2_score=r2, mae=err, mse=err3, summary=summary_str)
+    if st.session_state.llm:
+        response_metrics = get_llm_response(r2_score=r2, mae=err, mse=err3, summary=summary_str)
         st.write("## Explanation from LLM for GLM Metrics")
         st.markdown(response_metrics)
     
@@ -397,6 +371,35 @@ def fit_glm(xtrain, xtest, ytrain, ytest, model_type):
     plot_fitted_vs_predicted_streamlit(ytest, ypred, title=f'Model: {model_type}')
 
     return model
+
+def plot_fitted_vs_predicted_streamlit(y_fitted, y_pred, title="Fitted vs Predicted Values", xlabel="Index", ylabel="Values"):
+    trace_fitted = go.Scatter(
+        x=list(range(len(y_fitted))),
+        y=y_fitted,
+        mode='lines+markers',
+        name='True Values',
+        line=dict(color='green', dash='dash')
+    )
+    
+    trace_pred = go.Scatter(
+        x=list(range(len(y_pred))),
+        y=y_pred,
+        mode='lines+markers',
+        name='Predicted Values',
+        line=dict(color='red')
+    )
+    
+    layout = go.Layout(
+        title=title,
+        xaxis=dict(title=xlabel),
+        yaxis=dict(title=ylabel),
+        showlegend=True
+    )
+    
+    fig = go.Figure(data=[trace_fitted, trace_pred], layout=layout)
+    fig.update_layout(width=1000, height=600)
+    # Use st.plotly_chart to display the plot in Streamlit
+    st.plotly_chart(fig)
 
 def predict():
     if 'model' not in st.session_state or st.session_state.model is None:
@@ -424,102 +427,45 @@ def predict():
         value = st.number_input(f"Enter value for {feature}:")
         numeric_values.append(value)
         
-
     # Input for categorical features
     categorical_values = []
-    if len(categorical_features)>0:
+    if len(categorical_features) > 0:
         for feature in categorical_features:
             options = st.session_state.df[feature].unique().tolist()
             value = st.selectbox(f"Select value for {feature}:", options)
             categorical_values.append(value)
+
     if st.button("Submit"):
-        
         # Convert numeric inputs to NumPy array
         numeric_array = np.array(numeric_values).reshape(1, -1)
-        st.write(numeric_array)
+        
         # Apply the same scaling that was used during training
+        numeric_scaled = st.session_state.scaler.transform(numeric_array)
         
-        numeric_scaled =numeric_array # Replace with scaler.transform if scaler is pre-fitted
-        st.write(numeric_scaled)
-        # Create a DataFrame for the categorical inputs
-        categorical_df = pd.DataFrame([categorical_values], columns=categorical_features)
-        st.write(categorical_df.head())
+        # Create DataFrames for numeric and categorical inputs
         numeric_df = pd.DataFrame(numeric_scaled, columns=numeric_features)
-        if len(categorical_features)>0:
-        # One-hot encode categorical inputs (use the same encoder as used during training)
+        
+        if len(categorical_features) > 0:
+            # One-hot encode categorical inputs
+            categorical_df = pd.DataFrame([categorical_values], columns=categorical_features)
             categorical_encoded = pd.get_dummies(categorical_df)
-            st.write(categorical_encoded.head())
+            
             # Ensure the columns match the trained model's input
-            missing_cols = set(st.session_state.new_independent_vars1)- set(numeric_features)-set(categorical_encoded.columns)
-            '''st.write('Missing: ',set(st.session_state.new_independent_vars1))
-            st.write('Missing: ',set(categorical_encoded.columns))
-            st.write('Missing: ',set(st.session_state.n))
-            st.write('Missing: ',missing_cols)'''
+            missing_cols = set(st.session_state.new_independent_vars1) - set(numeric_features) - set(categorical_encoded.columns)
             for col in missing_cols:
-                if col!=1:
-                    categorical_encoded[col] = 0
-            categorical_encoded = categorical_encoded[categorical_encoded.columns]
-            st.write(categorical_encoded)
-        
-
-        #Combine numeric and categorical data
-        #combined_data = numeric_scaled.append(categorical_encoded.values)
-        numeric_df = pd.DataFrame(numeric_scaled, columns=numeric_features)
-        st.write(numeric_df)
-        
-
-        st.write(combined_df)
-        combined_df.columns = range(combined_df.shape[1])
-        numeric_cat =st.session_state.scaler.transform(numeric_df)
-        if len(categorical_features)>0:
-            combined_df =  np.hstack([numeric_df, categorical_encoded], axis=1)
+                categorical_encoded[col] = 0
+            categorical_encoded = categorical_encoded[st.session_state.new_independent_vars1[len(numeric_features):]]
+            
+            # Combine numeric and categorical data
+            combined_df = pd.concat([numeric_df, categorical_encoded], axis=1)
         else:
-            combined_df=numeric_df
-        # Make a prediction
-        st.write(combined_df)
+            combined_df = numeric_df
         
+        # Make a prediction
         prediction = model.predict(combined_df)
 
         # Display the prediction
         st.write(f"The predicted value is: {prediction[0]}")
 
 
-def plot_fitted_vs_predicted_streamlit(y_fitted, y_pred, title="Fitted vs Predicted Values", xlabel="Index", ylabel="Values"):
-    """
-    Visualizes the fitted and predicted values using Plotly in a Streamlit app.
-    
-    Parameters:
-    - y_fitted: array-like, fitted values from the model
-    - y_pred: array-like, predicted values from the model
-    - title: str, title of the plot
-    - xlabel: str, label for the x-axis
-    - ylabel: str, label for the y-axis
-    """
-    
-    trace_fitted = go.Scatter(
-        x=list(range(len(y_fitted))),
-        y=y_fitted,
-        mode='lines+markers',
-        name=' True Values',
-        line=dict(color='green', dash='dash')
-    )
-    
-    trace_pred = go.Scatter(
-        x=list(range(len(y_pred))),
-        y=y_pred,
-        mode='lines+markers',
-        name='Predicted Values',
-        line=dict(color='red')
-    )
-    
-    layout = go.Layout(
-        title=title,
-        xaxis=dict(title=xlabel),
-        yaxis=dict(title=ylabel),
-        showlegend=True
-    )
-    
-    fig = go.Figure(data=[trace_fitted, trace_pred], layout=layout)
-    
-    # Use st.plotly_chart to display the plot in Streamlit
-    st.plotly_chart(fig)
+
