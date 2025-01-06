@@ -67,6 +67,11 @@ def visualization():
     llm = initialize_llm()
 
     if 'df' in st.session_state and st.session_state.df is not None:
+        data = st.session_state.df
+        st.subheader("Dataset Overview")
+        st.write("Here are the first few rows of your dataset:")
+        st.dataframe(data.head())
+        st.divider()
         sub_page = st.selectbox(
             "Choose a visualization type:",
             ["Histogram", "Scatter Plot", "Line Plot", "Box Plot", "Bar Plot", "Heatmap", "Pie Chart", "Violin Plot"]
