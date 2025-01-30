@@ -35,5 +35,5 @@ Modify the `.streamlit/config.toml` and `config/config.yml` files to customize t
 Feel free to contribute by submitting pull requests or reporting issues.
 
 ## 📜 License
-This project is licensed under the terms specified in the `LICENSE` file.
+This project is licensed under the terms specified in the `Apache License` file.
 
