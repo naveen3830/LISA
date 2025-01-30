@@ -59,7 +59,7 @@ def load_sidebar():
                                                         value=st.session_state.get('groq_api_key', ''))
         
         st.session_state['model_name'] = st.selectbox("Select Model:", 
-                                                    ["llama-3.3-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"], 
+                                                    ["deepseek-r1-distill-llama-70b","llama-3.3-70b-versatile","llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"], 
                                                     index=st.session_state.get('model_name_index', 0))
         
         st.session_state['temperature'] = st.slider("Temperature:", min_value=0.0, max_value=1.0, value=st.session_state.get('temperature', 0.5), step=0.1)
