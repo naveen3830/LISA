@@ -3,9 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 from upload_data import upload_data
-from Categorical_Analysis import categorical_data_analysis
-from Continuous_Analysis import continuous_data_analysis
-from Regression_Analysis import  regression_analysis
+from src.components.Categorical_Analysis import categorical_data_analysis
+from src.components.Continuous_Analysis import continuous_data_analysis
+from src.components.Regression_Analysis import  regression_analysis
 import warnings
 
 def statistical_analysis1():

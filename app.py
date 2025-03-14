@@ -8,9 +8,9 @@ from streamlit_option_menu import option_menu
 # Import custom functions
 from Home import Home
 from Home import load_sidebar
-from classification import classify
-from viz import visualization
-from statistical_analysis import statistical_analysis1
+from src.components.classification import classify
+from src.components.viz import visualization
+from src.components.statistical_analysis import statistical_analysis1
 
 # Set page configuration
 st.set_page_config(

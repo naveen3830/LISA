@@ -41,6 +41,4 @@ def upload_data():
         st.write("Uploaded data preview:")
         st.write(st.session_state.data.head())
 
-
-  
     
