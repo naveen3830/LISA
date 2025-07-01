@@ -4,12 +4,11 @@ streamlit_option_menu
 pandas
 numpy
 streamlit
-scikit-learn
+scikit-learn  
 seaborn
 plotly
 python-dotenv
 pandasql
 statsmodels
 scipy
-imbalanced-learn
 xgboost
