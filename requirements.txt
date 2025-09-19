@@ -12,3 +12,4 @@ pandasql
 statsmodels
 scipy
 xgboost
+imbalanced-learn
