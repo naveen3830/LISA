@@ -6,8 +6,7 @@ from scipy.stats import f_oneway, wilcoxon, mannwhitneyu, kruskal, friedmanchisq
 from statsmodels.stats.anova import AnovaRM
 from statsmodels.stats.weightstats import ztest
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Initialize session state variables
 if 'llm' not in st.session_state:

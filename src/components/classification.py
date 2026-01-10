@@ -17,8 +17,7 @@ from imblearn.over_sampling import RandomOverSampler, SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 import plotly.graph_objects as go
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 def get_llm_response(llm, accuracy=None, confusion_matrix=None, classification_report=None):
     system_message_prompt = SystemMessagePromptTemplate.from_template(

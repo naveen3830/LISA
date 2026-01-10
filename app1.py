@@ -1,10 +1,8 @@
 import streamlit as st
 import pandas as pd
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from langchain_core.messages import HumanMessage
-from langchain.schema import AIMessage
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
 from pandasql import sqldf
 from functions import check

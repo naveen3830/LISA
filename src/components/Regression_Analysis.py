@@ -15,8 +15,7 @@ from scipy.stats import shapiro
 from statsmodels.stats.stattools import durbin_watson
 import plotly.graph_objs as go
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 # Initialize session state variables
 if 'llm' not in st.session_state:

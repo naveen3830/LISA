@@ -1,0 +1,23 @@
+[project]
+name = "lisa"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "imbalanced-learn>=0.14.1",
+    "langchain>=1.2.3",
+    "langchain-groq>=1.1.1",
+    "numpy>=2.4.0",
+    "pandas>=2.3.3",
+    "pandasql>=0.7.3",
+    "plotly>=6.5.1",
+    "python-dotenv>=1.2.1",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.16.3",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.14.6",
+    "streamlit>=1.52.2",
+    "streamlit-option-menu>=0.4.0",
+    "xgboost>=3.1.3",
+]
