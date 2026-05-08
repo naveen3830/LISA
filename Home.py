@@ -293,6 +293,103 @@ def Home():
                 "df": df.head(50).to_string() if df is not None else "No data uploaded yet."
             })
 
+        # =========================
+# AI BUSINESS INSIGHT GENERATOR
+# =========================
+
+def generate_business_insights(df, llm):
+    """
+    Automatically generates AI-powered business insights
+    from uploaded dataset.
+    """
+
+    try:
+        # Dataset summary
+        shape = df.shape
+        columns = df.columns.tolist()
+        numerical_summary = df.describe().to_string()
+
+        # Correlation matrix
+        correlation_data = df.corr(numeric_only=True)
+
+        # Strong correlations
+        strong_corr = []
+
+        for col in correlation_data.columns:
+            for idx in correlation_data.index:
+                corr_value = correlation_data.loc[idx, col]
+
+                if idx != col and abs(corr_value) > 0.7:
+                    strong_corr.append(
+                        f"{idx} and {col} correlation = {round(corr_value, 2)}"
+                    )
+
+        correlation_text = "\n".join(set(strong_corr))
+
+        # Missing values
+        missing_values = df.isnull().sum()
+        missing_text = missing_values[missing_values > 0].to_string()
+
+        prompt = f"""
+        You are an expert Data Scientist and Business Analyst.
+
+        Analyze the following dataset information and generate
+        deep business insights.
+
+        DATASET SHAPE:
+        {shape}
+
+        COLUMNS:
+        {columns}
+
+        NUMERICAL SUMMARY:
+        {numerical_summary}
+
+        STRONG CORRELATIONS:
+        {correlation_text}
+
+        MISSING VALUES:
+        {missing_text}
+
+        Your task:
+        1. Identify important business trends.
+        2. Detect anomalies.
+        3. Explain strong correlations.
+        4. Identify data quality issues.
+        5. Suggest business recommendations.
+        6. Suggest ML opportunities.
+        7. Mention potential risks.
+        8. Mention important KPIs.
+        9. Explain possible future predictions.
+        10. Generate executive summary.
+
+        Provide response in clean markdown format.
+        """
+
+        response = groq_infer(llm, prompt)
+
+        return response
+
+    except Exception as e:
+        return f"Error generating insights: {str(e)}"
+
+
+# =========================
+# STREAMLIT INTEGRATION
+# =========================
+
+elif option == "Generate AI Business Insights":
+
+    with st.spinner("Generating AI-powered insights..."):
+
+        insights = generate_business_insights(
+            st.session_state.df,
+            llm
+        )
+
+        st.subheader("AI Business Insights")
+        st.markdown(insights)
+
 
 
         # Display chat history
