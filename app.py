@@ -23,6 +23,16 @@ st.set_page_config(
 if 'df' not in st.session_state:
     st.session_state.df = None
 
+folders = [
+    "artifacts",
+    "data/raw",
+    "data/processed",
+    "notebooks"
+]
+
+for folder in folders:
+    os.makedirs(folder, exist_ok=True)
+
 # Sidebar menu
 with st.sidebar:
     # Title with centered alignment
