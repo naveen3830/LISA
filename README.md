@@ -5,15 +5,6 @@ LISA (Learning-based Interactive Statistical Analysis) is a Streamlit-based web 
 ## 🌐 Live Application
 Access the deployed application here: [LISA Tool](https://lisatool.streamlit.app/)
 
-## ✨ Features
-- 📊 **Categorical Analysis**: Perform descriptive statistics and visualizations for categorical variables.
-- 📈 **Continuous Analysis**: Conduct exploratory data analysis on numerical variables.
-- 🤖 **Regression Analysis**: Implement various regression models.
-- 🎯 **Classification Analysis**: Train and evaluate classification models.
-- 📑 **Statistical Analysis**: Compute various statistical measures.
-- 📤 **Data Upload**: Upload and process custom datasets.
-- 📷 **Visualization**: Generate graphical representations of data.
-
 ## 🛠 Installation
 To run the application locally, follow these steps:
 ```sh
