@@ -26,7 +26,20 @@ def main_updated():
     elif primary_task == "Regression Analysis":
         regression_analysis()
 
+    folders = [
+        "artifacts",
+        "data/raw",
+        "data/processed",
+        "notebooks"
+    ]
+    
+    for folder in folders:
+        os.makedirs(folder, exist_ok=True)
 
+    readme = f"# {project_name}\n\nMachine Learning Project"
+    
+    with open("README.md","w") as f:
+        f.write(readme)
 
 
 if __name__ == "__main__":
