@@ -23,21 +23,6 @@ st.set_page_config(
 if 'df' not in st.session_state:
     st.session_state.df = None
 
-# Sidebar menu
-with st.sidebar:
-    # Title with centered alignment
-    st.markdown("<h2 style='text-align: center;'>LISA Menu</h2>", unsafe_allow_html=True)
-
-    # Subtitle with centered alignment
-    st.markdown("<h4 style='text-align: center;'>Navigate through the sections:</h4>", unsafe_allow_html=True)
-    
-    selected = option_menu(
-        'Main Menu',
-        ['Home', 'Visualisation', 'Classification', 'Statistical Analysis'],
-        icons=['house', 'bar-chart-line', 'list-check', 'clipboard-data'],
-        default_index=0,
-        menu_icon="cast"
-    )
 
 # Load respective page based on user selection
 if selected == "Home":
