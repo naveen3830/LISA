@@ -11,17 +11,6 @@ from pathlib import Path
 import os
 from streamlit_option_menu import option_menu
 
-def get_llm_response(llm, prompt_template, data):
-    system_message_prompt = SystemMessagePromptTemplate.from_template(
-        "You are StatBot, an expert statistical analyst. "
-        "Explain the output in simple English. Straight away start with your explanations.")
-    human_message_prompt = HumanMessagePromptTemplate.from_template(prompt_template)
-    
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-    formatted_chat_prompt = chat_prompt.format_messages(**data)
-    response = llm.invoke(formatted_chat_prompt)
-    return response.content
-
 def groq_infer(llm, prompt):
     messages = [HumanMessage(content=prompt)]
     response = llm(messages)
