@@ -1,6 +1,6 @@
 # 🚀 LISA Tool
 
-LISA (Learning-based Interactive Statistical Analysis) is a Streamlit-based web application designed for statistical and machine learning analysis. The tool provides various modules for categorical, continuous, regression, and classification analysis.
+LISA (LLM based Statistical Analysis) is a Streamlit-based web application designed for statistical and machine learning analysis. The tool provides various modules for categorical, continuous, regression, and classification analysis.
 
 ## 🌐 Live Application
 Access the deployed application here: [LISA Tool](https://lisatool.streamlit.app/)
