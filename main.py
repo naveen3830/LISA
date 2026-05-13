@@ -26,7 +26,23 @@ def main_updated():
     elif primary_task == "Regression Analysis":
         regression_analysis()
 
+def missing_value_analysis(df):
+    st.subheader("Missing Value Analysis")
 
+    missing = df.isnull().sum()
+    missing_percent = (missing / len(df)) * 100
+
+    missing_df = pd.DataFrame({
+        "Missing Count": missing,
+        "Missing %": missing_percent
+    })
+
+    st.dataframe(missing_df)
+
+    fig, ax = plt.subplots()
+    missing.sort_values(ascending=False).plot(kind='bar', ax=ax)
+    plt.xticks(rotation=90)
+    st.pyplot(fig)
 
 
 if __name__ == "__main__":
