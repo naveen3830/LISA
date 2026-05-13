@@ -26,17 +26,7 @@ if 'tables' not in st.session_state:
 
 tab1, tab2, tab3, tab4 = st.tabs(["Home", "ChatBot", "Report Generation", "About"])
 
-def get_llm_response(llm, prompt_template, data):
-    system_message_prompt = SystemMessagePromptTemplate.from_template(
-        "You are StatBot, an expert statistical analyst. "
-        "Explain the output in simple English. Straight away start with your explanations.")
-    
-    human_message_prompt = HumanMessagePromptTemplate.from_template(prompt_template)
-    
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-    formatted_chat_prompt = chat_prompt.format_messages(**data)
-    response = llm.invoke(formatted_chat_prompt)
-    return response.content
+
 
 def groq_infer(llm, prompt):
     messages = [HumanMessage(content=prompt)]
