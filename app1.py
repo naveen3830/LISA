@@ -15,7 +15,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from io import BytesIO
 import re
 
-st.set_page_config(page_title="LISA : LLM Informed Statistical Analysis", page_icon=":books:", layout="wide")
+st.set_page_config(page_title="LISA: LLM Informed Statistical Analysis", layout="wide")
 
 if 'df' not in st.session_state:
     st.session_state.df = None
@@ -142,7 +142,7 @@ You must output the SQL query that answers the question in a single line.
 prompt = PromptTemplate.from_template(template=template)
 
 with tab1:
-    st.header("Welcome to LISA: LLM Informed Statistical Analysis 🎈", divider='rainbow')
+    st.header("Welcome to LISA: LLM Informed Statistical Analysis", divider='rainbow')
     st.markdown("LISA is an innovative platform designed to automate your data analysis process using advanced Large Language Models (LLM) for insightful inferences. Whether you're a data enthusiast, researcher, or business analyst, LISA simplifies complex data tasks, providing clear and comprehensible explanations for your data.")
     st.markdown("LISA combines the efficiency of automated data processing with the intelligence of modern language models to deliver a seamless and insightful data analysis experience. Empower your data with LISA!")
     st.divider()
