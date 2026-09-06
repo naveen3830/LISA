@@ -80,7 +80,7 @@ def regression_analysis():
         analysis()
 
 def preprocess_data(data, independent_vars):
-    st.subheader("🔧 Data Preprocessing", divider='gray')
+    st.subheader("Data Preprocessing", divider='gray')
     
     categorical_vars = data[independent_vars].select_dtypes(include=['object', 'category']).columns.tolist()
     numeric_vars = data[independent_vars].select_dtypes(exclude=['object', 'category']).columns.tolist()

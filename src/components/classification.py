@@ -87,7 +87,7 @@ def create_preprocessing_pipeline(X):
 # Main function for classification
 def classify():
     # Page title and introduction
-    st.header('🔍 Classification Model Builder',divider='grey')
+    st.header('Classification Model Builder', divider='grey')
     st.write("""
     Welcome to the Classification Model Builder! This app allows you to build and evaluate various classification models on your dataset.
     You can select the features, choose from a variety of algorithms, handle class imbalances, and evaluate the model's performance.

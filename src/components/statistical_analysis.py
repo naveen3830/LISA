@@ -9,9 +9,8 @@ from src.components.Regression_Analysis import  regression_analysis
 import warnings
 
 def statistical_analysis1():
-# Use query parameters to track the active tab
-    query_params = st.experimental_get_query_params()
-    active_tab = query_params.get("tab", ["categorical"])[0]  # Default tab is categorical
+    # Use query parameters to track the active tab
+    active_tab = st.query_params.get("tab", "categorical")  # Default tab is categorical
 
     # Display the tabs
     tab1, tab2, tab3 = st.tabs(["Categorical Data Analysis", "Continuous Data Analysis", "Regression Analysis"])

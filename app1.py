@@ -40,7 +40,7 @@ def get_llm_response(llm, prompt_template, data):
 
 def groq_infer(llm, prompt):
     messages = [HumanMessage(content=prompt)]
-    response = llm(messages)
+    response = llm.invoke(messages)
     print(response.content)
     return response.content
 

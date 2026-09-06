@@ -12,10 +12,11 @@ from src.components.classification import classify
 from src.components.viz import visualization
 from src.components.statistical_analysis import statistical_analysis1
 
+load_dotenv()
+
 # Set page configuration
 st.set_page_config(
     page_title="LISA: LLM Informed Statistical Analysis",
-    page_icon=":books:",
     layout="wide"
 )
 
@@ -39,16 +40,16 @@ with st.sidebar:
         menu_icon="cast"
     )
 
+# Load sidebar API key and model options for all pages
+load_sidebar()
+
 # Load respective page based on user selection
 if selected == "Home":
     Home()
 elif selected == "Visualisation":
     visualization()
-    load_sidebar()
 elif selected == "Classification":
     classify()
-    load_sidebar()
 elif selected == "Statistical Analysis":
     statistical_analysis1()
-    load_sidebar()
 
